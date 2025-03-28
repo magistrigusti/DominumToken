@@ -1,6 +1,9 @@
 import "@stdlib/ownable";
 import "./messages";
 
+//              npx blueprint build
+
+
 contract DominumJetton with Dominum {
     total_supply: Int as coins;
     owner: Address;
@@ -20,7 +23,7 @@ contract DominumJetton with Dominum {
         let ctx: Context = context();
         require(ctx.sender == self.owner, "Not Owner");
         require(self.mintable, "Can't Mint Anymore");
-        self.mint(msgreceiver, msg.amount, self.owner);
+        self.mint(msg.receiver, msg.amount, self.owner);
     }
 
     receive("Owner: MiningClose") {
@@ -183,7 +186,7 @@ contract DominumWallet {
                 to: self.owner,
                 value: msg.forward_ton_amount,
                 mode: SendPayGasSeparately + SendIgnoreErrors,
-                bouce: false,
+                bounce: false,
                 body: TokenNotification {
                     query_id: msg.query_id,
                     amount: msg.amount,
@@ -255,4 +258,4 @@ contract DominumWallet {
         self.balance = self.balance + src.amount;
     }
 
-}
+}   

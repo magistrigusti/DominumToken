@@ -2,18 +2,20 @@ import "@stdlib/ownable";
 import "./messages";
 
 contract DominumJetton with Dominum {
-    totalSupply: Int as coins;
+    total_supply: Int as coins;
     owner: Address;
+    inflation: Address;
     content: Cell;
     mintable: Bool;
     max_supply: Int as coins;
 
     init(owner: Address, content: Cell, max_supply: Int) {
-        self.totalSupply = 0;
+        self.total_supply = 0;
         self.owner = owner;
         self.mintable = true;
         self.content = content;
-        selfmax_supply = max_supply;
+        self.max_supply = max_supply;
+        self.inflation = inflation;
     }
 
     receive(msg: MintMining) {
@@ -28,7 +30,7 @@ contract DominumJetton with Dominum {
         require(self.mintable, "Can't Mint Anymore");
         self.mintable = true;
         require(self.total_supply + 100000 =< self.max_supply, "Infaltion minting");
-        self.mintInflation(ctx.sender, 100, self.owner); //
+        self.mintInflation(ctx.sender, 100000 , self.inflation); //
     }
 
     receive("Owner: MiningClose") {
@@ -38,17 +40,10 @@ contract DominumJetton with Dominum {
     }
 }
 
-struct JettonData {
-    totalSupply: Int as coins;
-    mintable: Bool;
-    owner: Address;
-    content: Cell;
-    walletCode: Cell;
-}
 
 @interface("org.ton.jetton.master")
 trait Dominum with Ownable {
-    totalSupply: Int as coins;
+    total_supply: Int as coins;
     mintable: Bool;
     owner: Address;
     content: Cell;
@@ -136,8 +131,46 @@ trait Dominum with Ownable {
         let code: Cell = self.getJettonWalletInit(myAddress()).code;
 
         return JettonData {
-            
-        }
+            total_supply: self.total_supply,
+            mintable: self.mintable,
+            owner: self.owner,
+            content: self.content,
+            wallet_code: code
+        };
+    }
+
+    get fun get_wallet_address(owner: Address): Address {
+        let winit: StateInit = self.getJettonWalletInit(owner);
+        return contractAddress(winit);
+    }
+
+}
+
+
+@interface("org.ton.jetton.wallet")
+contract DominumWallet {
+    const minTonsForStorage: Int = ton("0.1");
+    const gasConsumption: Int = ton("0.05");
+
+    balance: Int as coins;
+    owner: Address;
+    master: Address;
+
+    init(master: Address, owner: Address) {
+        self.balance = 0;
+        self.owner = owner;
+        self.master = master;
+    }
+
+    receive(msg: TokenTransfer) {
+        let ctx: Context = context();
+        require(ctx.sender == self.owner, "Invalid sender");
+
+        let fwdFee: Int = ctx.readForwardFee() + ctx.readForwardFee();  
+        let final: Int =  2 * self.gasConsumption + self.minTonsForStorage + fwdFee;
+        require(ctx.value > min(final, ton("0.01")), "Invalid value!!"); 
+
+        self.balance = self.balance - msg
     }
 
 }

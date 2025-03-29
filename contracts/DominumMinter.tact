@@ -1,4 +1,4 @@
-import "./jetton-wallet";
+import "./DominumJetton";
 import "./messages";
 import "./constants";
 

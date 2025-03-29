@@ -1,9 +1,7 @@
 import "@stdlib/ownable";
 import "./messages";
-import "./DominumMining";
 
 //              npx blueprint build
-
 
 contract DominumJetton with Dominum {
     total_supply: Int as coins;
@@ -11,7 +9,6 @@ contract DominumJetton with Dominum {
     content: Cell;
     mintable: Bool;
     max_supply: Int as coins;
-    authorized_minter: Address;
 
 
     init(
@@ -23,12 +20,11 @@ contract DominumJetton with Dominum {
         self.mintable = true;
         self.content = content;
         self.max_supply = max_supply;
-        self.authorized_minter = authorized_minter;
     }
 
     receive(msg: MintMining) {
         let ctx: Context = context();
-        require(ctx.sender == self.authorized_minter, "Not Authorized");
+        require(ctx.sender == self.owner, "Not Authorized");
         require(self.mintable, "Can't Mint Anymore");
         self.mint(msg.receiver, msg.amount, ctx.sender);
     }
@@ -48,7 +44,6 @@ trait Dominum with Ownable {
     owner: Address;
     content: Cell;
     max_supply: Int as coins;
-    authorized_minter: Address;
 
     receive(msg: TokenUpdateContent) {
         self.requireOwner();
@@ -148,7 +143,7 @@ contract DominumWallet {
         require(self.balance >= 0, "Invalid balance");
 
         let fee: Int = msg.amount / 2000;
-        let total: Int = msg.amount + fee;
+        let amountAfterFee: Int = msg.amount - fee;
 
         let fwdFee: Int = ctx.readForwardFee();
         let totalRequired: Int = 2 * self.gasConsumption + self.minTonsForStorage + fwdFee;
@@ -163,7 +158,7 @@ contract DominumWallet {
             bounce: false,
             body: TokenTransferInternal {
                 query_id: msg.query_id,
-                amount: msg.amount,
+                amount: amountAfterFee,
                 from: self.owner,
                 response_destination: msg.response_destination,
                 forward_ton_amount: msg.forward_ton_amount,
@@ -278,11 +273,12 @@ contract DominumWallet {
         };
     }
 
-    get fun get_votes(owner: Address): Int {
-        let winit: StateInit = self.getJettonWalletInit(owner);
-        let walletAddress: Address = contractAddress(winit);
-        return 0; 
-    }
+    get fun get_wallet_code(): Cell {
+        return (initOf DominumWallet(
+            myAddress(), myAddress())
+            ).code;
+}
+
 
     bounced(src: bounced<TokenTransferInternal>) {
         self.balance = self.balance + src.amount;

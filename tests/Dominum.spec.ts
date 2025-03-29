@@ -1,21 +1,21 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { toNano } from '@ton/core';
-import { Allodium } from '../wrappers/Allodium';
+import { Dominum } from '../wrappers/Dominum';
 import '@ton/test-utils';
 
-describe('Allodium', () => {
+describe('Dominum', () => {
     let blockchain: Blockchain;
     let deployer: SandboxContract<TreasuryContract>;
-    let allodium: SandboxContract<Allodium>;
+    let dominum: SandboxContract<Dominum>;
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
-        allodium = blockchain.openContract(await Allodium.fromInit());
+        dominum = blockchain.openContract(await Dominum.fromInit());
 
         deployer = await blockchain.treasury('deployer');
 
-        const deployResult = await allodium.send(
+        const deployResult = await dominum.send(
             deployer.getSender(),
             {
                 value: toNano('0.05'),
@@ -28,7 +28,7 @@ describe('Allodium', () => {
 
         expect(deployResult.transactions).toHaveTransaction({
             from: deployer.address,
-            to: allodium.address,
+            to: dominum.address,
             deploy: true,
             success: true,
         });

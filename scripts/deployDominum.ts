@@ -1,11 +1,11 @@
 import { toNano } from '@ton/core';
-import { Allodium } from '../wrappers/Allodium';
+import { Dominum } from '../wrappers/Dominum';
 import { NetworkProvider } from '@ton/blueprint';
 
 export async function run(provider: NetworkProvider) {
-    const allodium = provider.open(await Allodium.fromInit());
+    const dominum = provider.open(await Dominum.fromInit());
 
-    await allodium.send(
+    await dominum.send(
         provider.sender(),
         {
             value: toNano('0.05'),
@@ -16,7 +16,7 @@ export async function run(provider: NetworkProvider) {
         }
     );
 
-    await provider.waitForDeploy(allodium.address);
+    await provider.waitForDeploy(dominum.address);
 
-    // run methods on `allodium`
+    // run methods on `dominum`
 }

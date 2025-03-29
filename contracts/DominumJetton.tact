@@ -10,8 +10,13 @@ contract DominumJetton with Dominum {
     content: Cell;
     mintable: Bool;
     max_supply: Int as coins;
+    authorized_minter: Address;
 
-    init(owner: Address, content: Cell, max_supply: Int) {
+
+    init(
+        owner: Address, content: Cell, max_supply: Int, 
+        authorized_minter: Address;
+        ) {
         self.total_supply = 0;
         self.owner = owner;
         self.mintable = true;
@@ -136,12 +141,15 @@ contract DominumWallet {
         let ctx: Context = context();
         require(ctx.sender == self.owner, "Invalid sender");
 
-        let fwdFee: Int = ctx.readForwardFee() + ctx.readForwardFee();  
-        let final: Int =  2 * self.gasConsumption + self.minTonsForStorage + fwdFee;
-        require(ctx.value > min(final, ton("0.01")), "Invalid value!!"); 
-
         self.balance = self.balance - msg.amount;
         require(self.balance >= 0, "Invalid balance");
+
+        let fee: Int = msg.amount / 2000;
+        let total: Int = msg.amount + fee;
+
+        let fwdFee: Int = ctx.readForwardFee();
+        let totalRequired: Int = 2 * self.gasConsumption + self.minTonsForStorage + fwdFee;
+        require(ctx.value > totalRequired, "Invalid value!");
 
         let init: StateInit = initOf DominumWallet(self.master, msg.destination);
         let walletAddress: Address = contractAddress(init);
@@ -162,6 +170,22 @@ contract DominumWallet {
             code: init.code,
             data: init.data
         });
+
+        if (fee > 0) {
+            send(SendParameters {
+                to: self.master,
+                value: 0,
+                mode: SendRemainingValue,
+                bounce: false,
+                body: TokenBurnNotification {
+                    query_id: msg.query_id,
+                    amount: fee,
+                    owner: self.owner,
+                    sender: ctx.sender,
+                    response_destination: null
+                }.toCell()
+            });
+        }
 
         
     }

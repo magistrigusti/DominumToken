@@ -18,11 +18,6 @@ message MintMining {
     receiver: Address;
 }
 
-message MintInflation {
-    amount: Int as coins;
-    receiver: Address;
-}
-
 message(0xf8a7ea5) TokenTransfer {
     query_id: Int as uint64;
     amount: Int as coins;
@@ -78,9 +73,6 @@ message(0x2c76b973) ProvideWalletAddress {
     owner_address: Address;
     include_address: Bool;
 }
-
-// take_wallet_address#d1735400 
-// query_id:uint64 wallet_address:MsgAddress owner_address:(Maybe ^MsgAddress) = InternalMsgBody;
 message(0xd1735400) TakeWalletAddress {
     query_id: Int as uint64;
     wallet_address: Address;

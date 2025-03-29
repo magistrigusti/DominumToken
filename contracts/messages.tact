@@ -13,6 +13,10 @@ struct JettonWalletData {
     code: Cell;
 }
 
+message SetBooster {
+  booster: Address;
+}
+
 message MintMining {
     amount: Int as coins;
     receiver: Address;

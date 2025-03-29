@@ -1,5 +1,6 @@
 import "@stdlib/ownable";
 import "./messages";
+import "./DominumMining";
 
 //              npx blueprint build
 
@@ -15,20 +16,21 @@ contract DominumJetton with Dominum {
 
     init(
         owner: Address, content: Cell, max_supply: Int, 
-        authorized_minter: Address;
+        authorized_minter: Address
         ) {
         self.total_supply = 0;
         self.owner = owner;
         self.mintable = true;
         self.content = content;
         self.max_supply = max_supply;
+        self.authorized_minter = authorized_minter;
     }
 
     receive(msg: MintMining) {
         let ctx: Context = context();
-        require(ctx.sender == self.owner, "Not Owner");
+        require(ctx.sender == self.authorized_minter, "Not Authorized");
         require(self.mintable, "Can't Mint Anymore");
-        self.mint(msg.receiver, msg.amount, self.owner);
+        self.mint(msg.receiver, msg.amount, ctx.sender);
     }
 
     receive("Owner: MiningClose") {
@@ -46,6 +48,7 @@ trait Dominum with Ownable {
     owner: Address;
     content: Cell;
     max_supply: Int as coins;
+    authorized_minter: Address;
 
     receive(msg: TokenUpdateContent) {
         self.requireOwner();
@@ -273,6 +276,12 @@ contract DominumWallet {
             master: self.master,
             code: (initOf DominumWallet(self.master, self.owner)).code
         };
+    }
+
+    get fun get_votes(owner: Address): Int {
+        let winit: StateInit = self.getJettonWalletInit(owner);
+        let walletAddress: Address = contractAddress(winit);
+        return 0; 
     }
 
     bounced(src: bounced<TokenTransferInternal>) {

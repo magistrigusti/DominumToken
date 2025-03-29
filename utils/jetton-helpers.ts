@@ -1,6 +1,6 @@
 import {Sha256} from "@aws-crypto/sha256-js"
 import {Dictionary, beginCell, Cell, Address} from "@ton/core"
-import {JettonMinter} from "../output/Jetton_JettonMinter"
+import {DominumMinter} from "../build/Dominum/tact_DominumMinter"
 import {TonClient} from "@ton/ton"
 
 const ONCHAIN_CONTENT_PREFIX = 0x00
@@ -90,12 +90,12 @@ async function parseMetadataFromCell(metadataCell: Cell) {
 }
 
 export async function validateJettonParams(
-    expectedJettonParams: JettonParams,
+    expectedJettonParams: JettonParams, 
     jettonAddress: Address,
     client: TonClient,
 ) {
     const {metadata, totalSupply, owner, jettonWalletCode} = expectedJettonParams
-    const jettonContract = client.open(new JettonMinter(jettonAddress))
+    const jettonContract = client.open(new DominumMinter(jettonAddress))
     const jettonData = await jettonContract.getGetJettonData()
     expect(jettonData.totalSupply).toBe(totalSupply)
     expect(jettonData.adminAddress.toRaw().toString("hex")).toBe(owner.toRaw().toString("hex"))
@@ -111,17 +111,17 @@ export async function validateJettonParams(
 
 export async function buildJettonMinterFromEnv(deployerAddress: Address) {
     const jettonParams = {
-        name: process.env.JETTON_NAME ?? "TactJetton",
+        name: process.env.JETTON_NAME ?? "Dominum",
         description:
-            process.env.JETTON_DESCRIPTION ?? "This is description of Jetton, written in Tact-lang",
-        symbol: process.env.JETTON_SYMBOL ?? "TACT",
+            process.env.JETTON_DESCRIPTION ?? "Dominum (DOM) is infest jetton in Allodium. Allodium is a crypto meta-space of a new world, uniting players, creators,and digital entities. A realm of freedom, magic, and the eternal game.",
+        symbol: process.env.JETTON_SYMBOL ?? "DOM",
         image:
             process.env.JETTON_IMAGE ??
-            "https://raw.githubusercontent.com/tact-lang/tact/refs/heads/main/docs/public/logomark-light.svg",
+            "https://blush-tough-stoat-809.mypinata.cloud/ipfs/bafybeieejtpzmvpv25etn34ggvr2vnpafzisoo7klztyzzuh3jrvmzouwq",
     }
     console.log(jettonParams)
     // Create content Cell
     const content = buildOnchainMetadata(jettonParams)
 
-    return await JettonMinter.fromInit(0n, deployerAddress, content, true)
+    return await DominumMinter.fromInit(0n, deployerAddress, content, true)
 }

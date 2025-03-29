@@ -26,7 +26,7 @@ message MintInflation {
 message(0xf8a7ea5) TokenTransfer {
     query_id: Int as uint64;
     amount: Int as coins;
-    sender: Address;
+    destination: Address;
     response_destination: Address?;
     custom_payload: Cell?;
     forward_ton_amount: Int as coins;
@@ -60,6 +60,7 @@ message(0x7bdd97de) TokenBurnNotification {
     query_id: Int as uint64;
     amount: Int as coins;
     owner: Address;
+    sender: Address;
     response_destination: Address?;
 }
 

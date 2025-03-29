@@ -40,7 +40,7 @@ trait Dominum with Ownable {
     mintable: Bool;
     owner: Address;
     content: Cell;
-    max_supply: Int;
+    max_supply: Int as coins;
 
     receive(msg: TokenUpdateContent) {
         self.requireOwner();
@@ -49,7 +49,7 @@ trait Dominum with Ownable {
 
     receive(msg: TokenBurnNotification) {
         self.requireWallet(msg.owner);
-        self.totalSupply = self.totalSupply - msg.amount;
+        self.total_supply = self.total_supply - msg.amount;
 
         if (msg.response_destination != null) {
             send(SendParameters{
@@ -58,23 +58,23 @@ trait Dominum with Ownable {
                 bounce: false,
                 mode: SendRemainingValue + SendIgnoreErrors,
                 body: TokenExcesses {
-                    query_id: msg.queryId
+                    query_id: msg.query_id
                 }.toCell()
             });
         }
     } 
 
     fun mint(to: Address, amount: Int, response_destination: Address) {
-        require(self.totalSupply + amount <= self.max_supply, "The total supply will be overlapping");
-        self.totalSupply = self.totalSupply + amount;
+        require(self.total_supply + amount <= self.max_supply, "The total supply will be overlapping");
+        self.total_supply = self.total_supply + amount;
         
         let winit: StateInit = self.getJettonWalletInit(to);
         send(SendParameters {
             to: contractAddress(winit),
             value: 0,
-            bouce: false,
-            mode: TokenTransferInternal {
-                query_id: 0n,
+            bounce: false,
+            body: TokenTransferInternal {
+                query_id: 0,
                 amount: amount,
                 from: myAddress(),
                 response_destination: response_destination,
@@ -143,8 +143,8 @@ contract DominumWallet {
         self.balance = self.balance - msg.amount;
         require(self.balance >= 0, "Invalid balance");
 
-        let init: StateInit = initOf DominumWallet(self.master, msg.detination);
-        let walletAddres: Address = contractAddress(init);
+        let init: StateInit = initOf DominumWallet(self.master, msg.destination);
+        let walletAddress: Address = contractAddress(init);
         send(SendParameters {
             to: walletAddress,
             value: 0,
@@ -178,7 +178,7 @@ contract DominumWallet {
         require(self.balance >= 0, "Invalid balance");
 
         let msgValue: Int = self.msgValue(ctx.value);
-        let fwdFee: Int= ctx.readForwardFee();
+        let fwdFee: Int = ctx.readForwardFee();
         msgValue = msgValue - msg.forward_ton_amount - fwdFee;
 
         if (msg.forward_ton_amount > 0) {
@@ -198,7 +198,7 @@ contract DominumWallet {
 
         if (msg.response_destination != null) {
             send(SendParameters {
-                to: msg.response_destination,
+                to: msg.response_destination!!,
                 value: msgValue,
                 bounce: false,
                 body: TokenExcesses {
@@ -216,8 +216,8 @@ contract DominumWallet {
         self.balance = self.balance - msg.amount;
         require(self.balance >= 0, "Invalid balance");
 
-        let fwdFee: Int = ctxreadForwardFee();
-        require(ctx.value > fwdFee + 2 * self.gasConsuption + self.minTonsForStorage, "Invalid value - Burn");
+        let fwdFee: Int = ctx.readForwardFee();
+        require(ctx.value > fwdFee + 2 * self.gasConsumption + self.minTonsForStorage, "Invalid value - Burn");
 
         send(SendParameters {
             to: self.master,
@@ -228,17 +228,18 @@ contract DominumWallet {
                 query_id: msg.query_id,
                 amount: msg.amount,
                 owner: self.owner,
-                response_destination: self.owner
+                sender: context().sender,
+                response_destination: msg.response_destination
             }.toCell()
         });
     }
 
     get fun msgValue(value: Int): Int {
-        let msgValue: Int = value;
-        let tonBalanceBeforeMsg: Int = myBalance() - msgValue;
+        let msg_value: Int = value;
+        let tonBalanceBeforeMsg: Int = myBalance() - msg_value;
         let storageFee: Int = self.minTonsForStorage - min(tonBalanceBeforeMsg, self.minTonsForStorage);
-        msgValue = msgValue - (storageFee + self.gasConsumption);
-        return msgValue;
+        msg_value = msg_value - (storageFee + self.gasConsumption);
+        return msg_value;
     }
 
     get fun get_wallet_data(): JettonWalletData {

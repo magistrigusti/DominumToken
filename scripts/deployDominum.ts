@@ -1,5 +1,5 @@
 import { toNano } from '@ton/core';
-import { Dominum } from '../wrappers/Dominum';
+import { Dominum } from '../wrappers/DominumMinter';
 import { NetworkProvider } from '@ton/blueprint';
 
 export async function run(provider: NetworkProvider) {

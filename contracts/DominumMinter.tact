@@ -1,4 +1,4 @@
-import "./DominumJetton";
+import "./DominumWallet";
 import "./messages";
 import "./constants";
 
@@ -24,20 +24,19 @@ contract DominumMinter (totalSupply: Int as coins,
         bounce: true,
         mode: SendRemainingValue,
         body: msg.mintMessage.toCell(),
-        nit: getJettonWalletInit(msg.receiver),
+        init: getJettonWalletInit(msg.receiver),
       });
     }
 
     
     receive(msg: ProvideWalletAddress) {
-        // we use message fwdFee for estimation of forward_payload costs
         let ctx = context();
         let fwdFee = ctx.readForwardFee();
         require(ctx.value > fwdFee + getComputeFee(gasForDiscovery, false), "Insufficient gas for discovery");
         let ownerWorkchain: Int = parseStdAddress(msg.ownerAddress.asSlice()).workchain;
 
         let targetJettonWallet: BasechainAddress = (ownerWorkchain == Workchain)
-            ? contractBasechainAddress(initOf JettonWallet(0, msg.ownerAddress, myAddress()))
+            ? contractBasechainAddress(initOf DominumWallet(0, msg.ownerAddress, myAddress()))
             : emptyBasechainAddress();
 
         message(MessageParameters {
@@ -99,13 +98,13 @@ contract DominumMinter (totalSupply: Int as coins,
         self.totalSupply -= msg.amount;
     }
 
-    get fun get_jetton_data(): JettonMinterState {
-        return JettonMinterState {
+    get fun get_jetton_data(): DominumMinterState {
+        return DominumMinterState {
             totalSupply: self.totalSupply,
             mintable: self.mintable,
             adminAddress: self.owner,
             jettonContent: self.jettonContent,
-            jettonWalletCode: codeOf JettonWallet,
+            jettonWalletCode: codeOf DominumWallet,
         };
     }
 
@@ -126,7 +125,7 @@ inline fun makeTakeWalletAddressMsg(targetJettonWallet: BasechainAddress, msg: P
 }
 
 inline fun getJettonWalletInit(address: Address): StateInit {
-    return initOf JettonWallet(0, address, myAddress());
+    return initOf DominumWallet(0, address, myAddress());
 }
 
 inline fun getJettonWalletByOwner(jettonWalletOwner: Address): Address {

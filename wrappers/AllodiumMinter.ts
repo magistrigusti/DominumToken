@@ -1,5 +1,5 @@
 // Экспорт Jetton (мастер-контракт)
-export * as DominumMinter from '../build/Dominum/tact_DominumMinter';
+export * as AllodiumMinter from '../build/Dominum/tact_AllodiumMinter';
 import ''
 import {
   ChangeOwner,
@@ -8,10 +8,10 @@ import {
   JettonUpdateContent,
   Mint,
   ProvideWalletAddress,
-} from '../build/Dominum/tact_DominumMinter'
+} from '../build/Allodium/tact_AllodiumMinter'
 import {Address, beginCell, Cell, ContractProvider, Sender, toNano} from "@ton/core"
 
-export class ExtendedDominumMinter extends DominumMinter {
+export class ExtendedAllodiumMinter extends AllodiumMinter {
   constructor(address: Address, init?: {code: Cell; data: Cell}) {
       super(address, init)
   }
@@ -21,7 +21,7 @@ export class ExtendedDominumMinter extends DominumMinter {
       if (base.init === undefined) {
           throw new Error("DominumMinter init is not defined")
       }
-      return new ExtendedDominumMinter(base.address, {code: base.init.code, data: base.init.data})
+      return new ExtendedAllodiumMinter(base.address, {code: base.init.code, data: base.init.data})
   }
 
   async getTotalSupply(provider: ContractProvider): Promise<bigint> {

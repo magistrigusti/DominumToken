@@ -111,13 +111,13 @@ export async function validateJettonParams(
 
 export async function buildJettonMinterFromEnv(deployerAddress: Address) {
     const jettonParams = {
-        name: process.env.JETTON_NAME ?? "Dominum",
+        name: process.env.JETTON_NAME ?? "Allodium",
         description:
-            process.env.JETTON_DESCRIPTION ?? "Dominum (DOM) is infest jetton in Allodium. Allodium is a crypto meta-space of a new world, uniting players, creators,and digital entities. A realm of freedom, magic, and the eternal game.",
-        symbol: process.env.JETTON_SYMBOL ?? "DOM",
+            process.env.JETTON_DESCRIPTION ?? "Allodium (ALOD) is game jetton in Allodium. Allodium is a crypto meta-space of a new world, uniting players, creators,and digital entities. A realm of freedom, magic, and the eternal game.",
+        symbol: process.env.JETTON_SYMBOL ?? "ALOD",
         image:
             process.env.JETTON_IMAGE ??
-            "https://blush-tough-stoat-809.mypinata.cloud/ipfs/bafybeieejtpzmvpv25etn34ggvr2vnpafzisoo7klztyzzuh3jrvmzouwq",
+            "https://blush-tough-stoat-809.mypinata.cloud/ipfs/bafybeihwa7ra7n32jgnaglkbl2meik2vvsueretoy7jyhrafyjtjse6kxm",
     }
     console.log(jettonParams)
     // Create content Cell

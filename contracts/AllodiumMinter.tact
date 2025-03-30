@@ -1,18 +1,19 @@
-import "./DominumWallet";
+import "./AllodiumWallet";
 import "./messages";
 import "./constants";
 
 const Workchain: Int = 0;
 
-struct DominumMinterState {
+struct AllodiumMinterState {
   totalSupply: Int as coins;
   mintable: Bool;
   adminAddress: Address;
   jettonContent: Cell;
   jettonWalletCode: Cell;
+  destimals: Int;
 }
 
-contract DominumMinter (totalSupply: Int as coins, 
+contract AllodiumMinter (totalSupply: Int as coins, 
   owner: Address, jettonContent: Cell, mintable: Bool) {
     receive(msg: Mint) {
       require(sender() == self.owner, "Incorrect sender");
@@ -98,13 +99,14 @@ contract DominumMinter (totalSupply: Int as coins,
         self.totalSupply -= msg.amount;
     }
 
-    get fun get_jetton_data(): DominumMinterState {
-        return DominumMinterState {
+    get fun get_jetton_data(): AllodiumMinterState {
+        return AllodiumMinterState {
             totalSupply: self.totalSupply,
             mintable: self.mintable,
             adminAddress: self.owner,
             jettonContent: self.jettonContent,
-            jettonWalletCode: codeOf DominumWallet,
+            jettonWalletCode: codeOf AllodiumWallet,
+            destimals: 4
         };
     }
 
@@ -125,7 +127,7 @@ inline fun makeTakeWalletAddressMsg(targetJettonWallet: BasechainAddress, msg: P
 }
 
 inline fun getJettonWalletInit(address: Address): StateInit {
-    return initOf DominumWallet(0, address, myAddress());
+    return initOf AllodiumWallet(0, address, myAddress());
 }
 
 inline fun getJettonWalletByOwner(jettonWalletOwner: Address): Address {

@@ -1,32 +1,32 @@
 import {Address, beginCell, Cell, toNano} from "@ton/core"
 import {Blockchain, BlockchainSnapshot, SandboxContract, TreasuryContract} from "@ton/sandbox"
-import {ExtendedDominumWallet} from "../wrappers/DominumWallet"
-import {ExtendedDominumMinter} from "../wrappers/DominumMinter"
+import {ExtendedAllodiumWallet} from "../wrappers/AllodiumWallet"
+import {ExtendedAllodiumMinter} from "../wrappers/AllodiumMinter"
 
 import {
     JettonUpdateContent,
     CloseMinting,
     Mint,
-    DominumMinter,
+    AllodiumMinter,
     TakeWalletBalance,
     storeTakeWalletBalance,
     minTonsForStorage,
-} from '../build/Dominum/tact_DominumMinter'
+} from '../build/Allodium/tact_AllodiumMinter'
 
 import "@ton/test-utils"
 
 // this test suite includes tests for the extended functionality
 describe("Jetton Minter Extended", () => {
     let blockchain: Blockchain
-    let jettonMinter: SandboxContract<ExtendedDominumMinter>
-    let jettonWallet: SandboxContract<ExtendedDominumWallet>
+    let jettonMinter: SandboxContract<ExtendedAllodiumMinter>
+    let jettonWallet: SandboxContract<ExtendedAllodiumWallet>
     let deployer: SandboxContract<TreasuryContract>
 
     let _jwallet_code = new Cell()
     let _minter_code = new Cell()
     let notDeployer: SandboxContract<TreasuryContract>
 
-    let userWallet: (address: Address) => Promise<SandboxContract<ExtendedDominumWallet>>
+    let userWallet: (address: Address) => Promise<SandboxContract<ExtendedAllodiumWallet>>
     let defaultContent: Cell
     let snapshot: BlockchainSnapshot
 
@@ -43,7 +43,7 @@ describe("Jetton Minter Extended", () => {
     }
 
     jettonMinter = blockchain.openContract(
-        await ExtendedDominumMinter.fromInit(0n, deployer.address, defaultContent)
+        await ExtendedAllodiumMinter.fromInit(0n, deployer.address, defaultContent)
     )
 
     const deployResult = await jettonMinter.send(
@@ -66,7 +66,7 @@ describe("Jetton Minter Extended", () => {
     _minter_code = minterCode
 
     jettonWallet = blockchain.openContract(
-        await ExtendedDominumWallet.fromInit(0n, deployer.address, jettonMinter.address)
+        await ExtendedAllodiumWallet.fromInit(0n, deployer.address, jettonMinter.address)
     )
 
     const walletCode = jettonWallet.init?.code
@@ -77,7 +77,7 @@ describe("Jetton Minter Extended", () => {
 
     userWallet = async (address: Address) => {
         return blockchain.openContract(
-            new ExtendedDominumWallet(await jettonMinter.getGetWalletAddress(address))
+            new ExtendedAllodiumWallet(await jettonMinter.getGetWalletAddress(address))
         )
     }
 
@@ -102,7 +102,7 @@ describe("Jetton Minter Extended", () => {
             from: notDeployer.address,
             to: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Incorrect sender"],
+            exitCode: AllodiumMinter.errors["Incorrect sender"],
         })
         expect((await jettonMinter.getGetJettonData()).mintable).toBeTruthy()
 
@@ -349,7 +349,7 @@ describe("Jetton Minter Extended", () => {
             to: jettonMinter.address,
             success: false,
             // https://github.com/ton-blockchain/ton/blob/303e92b7750dc443ae6c282fb478d2114079d216/crypto/block/transaction.cpp#L2860
-            actionResultCode: DominumMinter.errors["Not enough Toncoin"],
+            actionResultCode: AllodiumMinter.errors["Not enough Toncoin"],
         })
 
         expect(claimTonMinterResult.transactions).toHaveTransaction({

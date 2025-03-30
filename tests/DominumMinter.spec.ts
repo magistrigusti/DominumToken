@@ -1,20 +1,20 @@
 import {Address, Builder, beginCell, Cell, toNano} from "@ton/core"
 import {Blockchain, internal, SandboxContract, TreasuryContract} from "@ton/sandbox"
-import {ExtendedDominumWallet} from "../wrappers/DominumWallet"
-import {ExtendedDominumMinter} from "../wrappers/DominumMinter"
+import {ExtendedAllodiumWallet} from "../wrappers/AllodiumWallet"
+import {ExtendedAllodiumMinter} from "../wrappers/AllodiumMinter"
 
 import {
     JettonUpdateContent,
     storeJettonBurn,
     storeJettonTransfer,
     storeMint,
-    DominumMinter,
+    AllodiumMinter,
     minTonsForStorage,
-} from '../build/Dominum/tact_DominumMinter'
+} from '../build/Allodium/tact_AllodiumMinter'
 
 import "@ton/test-utils"
 import {getRandomInt, randomAddress} from "../utils/utils"
-import {DominumWallet} from '../build/Dominum/tact_DominumWallet'
+import {AllodiumWallet} from '../build/Allodium/tact_AllodiumWallet'
 import {randomBytes} from "crypto"
 
 function jettonContentToCell(content: {type: 0 | 1; uri: string}) {
@@ -28,15 +28,15 @@ function jettonContentToCell(content: {type: 0 | 1; uri: string}) {
 // https://github.com/ton-blockchain/token-contract/blob/main/sandbox_tests/JettonWallet.spec.ts
 describe("Jetton Minter", () => {
     let blockchain: Blockchain
-    let jettonMinter: SandboxContract<ExtendedDominumMinter>
-    let jettonWallet: SandboxContract<ExtendedDominumWallet>
+    let jettonMinter: SandboxContract<ExtendedAllodiumMinter>
+    let jettonWallet: SandboxContract<ExtendedAllodiumWallet>
     let deployer: SandboxContract<TreasuryContract>
 
     let _jwallet_code = new Cell()
     let _minter_code = new Cell()
     let notDeployer: SandboxContract<TreasuryContract>
 
-    let userWallet: (address: Address) => Promise<SandboxContract<ExtendedDominumWallet>>
+    let userWallet: (address: Address) => Promise<SandboxContract<ExtendedAllodiumWallet>>
     let defaultContent: Cell
     beforeAll(async () => {
         // Create content Cell
@@ -53,7 +53,7 @@ describe("Jetton Minter", () => {
         }
 
         jettonMinter = blockchain.openContract(
-            await ExtendedDominumMinter.fromInit(0n, deployer.address, defaultContent),
+            await ExtendedAllodiumMinter.fromInit(0n, deployer.address, defaultContent),
         )
 
         //We send Update content to deploy the contract, because it is not automatically deployed after blockchain.openContract
@@ -78,7 +78,7 @@ describe("Jetton Minter", () => {
         }
 
         jettonWallet = blockchain.openContract(
-            await ExtendedDominumWallet.fromInit(0n, deployer.address, jettonMinter.address),
+            await ExtendedAllodiumWallet.fromInit(0n, deployer.address, jettonMinter.address),
         )
         const walletCode = jettonWallet.init?.code
         if (walletCode === undefined) {
@@ -89,7 +89,7 @@ describe("Jetton Minter", () => {
 
         userWallet = async (address: Address) => {
             return blockchain.openContract(
-                new ExtendedDominumWallet(await jettonMinter.getGetWalletAddress(address)),
+                new ExtendedAllodiumWallet(await jettonMinter.getGetWalletAddress(address)),
             )
         }
     })
@@ -179,7 +179,7 @@ describe("Jetton Minter", () => {
             from: notDeployer.address,
             to: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Incorrect sender"],
+            exitCode: AllodiumMinter.errors["Incorrect sender"],
         })
         expect(await deployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance)
         expect(await jettonMinter.getTotalSupply()).toEqual(initialTotalSupply)
@@ -213,7 +213,7 @@ describe("Jetton Minter", () => {
             from: notDeployer.address,
             on: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Incorrect sender"],
+            exitCode: AllodiumMinter.errors["Incorrect sender"],
         })
     })
 
@@ -239,7 +239,7 @@ describe("Jetton Minter", () => {
             from: notDeployer.address,
             to: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Incorrect sender"],
+            exitCode: AllodiumMinter.errors["Incorrect sender"],
         })
     })
     it("wallet owner should be able to send jettons", async () => {
@@ -301,7 +301,7 @@ describe("Jetton Minter", () => {
             from: notDeployer.address,
             to: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Incorrect sender"],
+            exitCode: AllodiumWallet.errors["Incorrect sender"],
         })
         expect(await deployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance)
         expect(await notDeployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance2)
@@ -329,7 +329,7 @@ describe("Jetton Minter", () => {
             from: deployer.address,
             to: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Incorrect balance after send"],
+            exitCode: AllodiumWallet.errors["Incorrect balance after send"],
         })
         expect(await deployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance)
         expect(await notDeployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance2)
@@ -370,7 +370,7 @@ describe("Jetton Minter", () => {
             to: notDeployer.address,
             value: forwardAmount,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.JettonNotification, 32)
+                .storeUint(AllodiumMinter.opcodes.JettonNotification, 32)
                 .storeUint(0, 64) //default queryId
                 .storeCoins(sentAmount)
                 .storeAddress(deployer.address)
@@ -425,7 +425,7 @@ describe("Jetton Minter", () => {
             to: notDeployer.address,
             value: forwardAmount,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.JettonNotification, 32)
+                .storeUint(AllodiumMinter.opcodes.JettonNotification, 32)
                 .storeUint(0, 64) //default queryId
                 .storeCoins(sentAmount)
                 .storeAddress(deployer.address)
@@ -498,7 +498,7 @@ describe("Jetton Minter", () => {
             from: deployer.address,
             on: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Insufficient amount of TON attached"],
+            exitCode: AllodiumWallet.errors["Insufficient amount of TON attached"],
         })
         // Make sure value bounced
         expect(sendResult.transactions).toHaveTransaction({
@@ -558,7 +558,7 @@ describe("Jetton Minter", () => {
                 throw new Error("No out message") // It is impossible due to the check above
             }
             const outMsgSc = firstOutMsg.body.beginParse()
-            expect(outMsgSc.preloadUint(32)).toEqual(DominumMinter.opcodes.JettonTransferInternal)
+            expect(outMsgSc.preloadUint(32)).toEqual(AllodiumMinter.opcodes.JettonTransferInternal)
 
             expect(await jettonMinter.getTotalSupply()).toEqual(supplyBefore + mintAmount)
 
@@ -624,7 +624,7 @@ describe("Jetton Minter", () => {
                 throw new Error("No out message") // It is impossible due to the check above
             }
             const outMsgSc = firstOutMsg.body.beginParse()
-            expect(outMsgSc.preloadUint(32)).toEqual(DominumMinter.opcodes.JettonTransferInternal)
+            expect(outMsgSc.preloadUint(32)).toEqual(AllodiumMinter.opcodes.JettonTransferInternal)
 
             expect(await deployerJettonWallet.getJettonBalance()).toEqual(balanceBefore - txAmount)
 
@@ -677,7 +677,7 @@ describe("Jetton Minter", () => {
                 throw new Error("No out message") // It is impossible due to the check above
             }
             const outMsgSc = firstOutMsg.body.beginParse()
-            expect(outMsgSc.preloadUint(32)).toEqual(DominumMinter.opcodes.JettonBurnNotification)
+            expect(outMsgSc.preloadUint(32)).toEqual(AllodiumMinter.opcodes.JettonBurnNotification)
 
             expect(await deployerJettonWallet.getJettonBalance()).toEqual(
                 balanceBefore - burnAmount,
@@ -730,7 +730,7 @@ describe("Jetton Minter", () => {
             from: notDeployer.address,
             to: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Incorrect sender"],
+            exitCode: AllodiumWallet.errors["Incorrect sender"],
         })
         expect(await deployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance)
     })
@@ -779,7 +779,7 @@ describe("Jetton Minter", () => {
             from: notDeployer.address,
             to: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Incorrect sender"],
+            exitCode: AllodiumWallet.errors["Incorrect sender"],
         })
         expect(await deployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance)
         expect(await jettonMinter.getTotalSupply()).toEqual(initialTotalSupply)
@@ -801,7 +801,7 @@ describe("Jetton Minter", () => {
             from: deployer.address,
             to: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Incorrect balance after send"],
+            exitCode: AllodiumWallet.errors["Incorrect balance after send"],
         })
         expect(await deployerJettonWallet.getJettonBalance()).toEqual(initialJettonBalance)
         expect(await jettonMinter.getTotalSupply()).toEqual(initialTotalSupply)
@@ -812,7 +812,7 @@ describe("Jetton Minter", () => {
         const burnAmount = toNano("1")
         const burnNotification = (amount: bigint, addr: Address) => {
             return beginCell()
-                .storeUint(DominumMinter.opcodes.JettonBurnNotification, 32)
+                .storeUint(AllodiumMinter.opcodes.JettonBurnNotification, 32)
                 .storeUint(0, 64)
                 .storeCoins(amount)
                 .storeAddress(addr)
@@ -833,7 +833,7 @@ describe("Jetton Minter", () => {
             from: deployerJettonWallet.address,
             to: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Unauthorized burn"],
+            exitCode: AllodiumMinter.errors["Unauthorized burn"],
         })
 
         res = await blockchain.sendMessage(
@@ -867,7 +867,7 @@ describe("Jetton Minter", () => {
             from: jettonMinter.address,
             to: deployer.address,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.TakeWalletAddress, 32)
+                .storeUint(AllodiumMinter.opcodes.TakeWalletAddress, 32)
                 .storeUint(0, 64)
                 .storeAddress(deployerJettonWallet.address)
                 .storeUint(1, 1)
@@ -885,7 +885,7 @@ describe("Jetton Minter", () => {
             from: jettonMinter.address,
             to: deployer.address,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.TakeWalletAddress, 32)
+                .storeUint(AllodiumMinter.opcodes.TakeWalletAddress, 32)
                 .storeUint(0, 64)
                 .storeAddress(notDeployerJettonWallet.address)
                 .storeUint(1, 1)
@@ -903,7 +903,7 @@ describe("Jetton Minter", () => {
             from: jettonMinter.address,
             to: deployer.address,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.TakeWalletAddress, 32)
+                .storeUint(AllodiumMinter.opcodes.TakeWalletAddress, 32)
                 .storeUint(0, 64)
                 .storeAddress(notDeployerJettonWallet.address)
                 .storeUint(0, 1)
@@ -951,7 +951,7 @@ describe("Jetton Minter", () => {
             from: deployer.address,
             to: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Insufficient gas for discovery"],
+            exitCode: AllodiumMinter.errors["Insufficient gas for discovery"],
         })
         /*
          * Might be helpful to have logical OR in expect lookup
@@ -1156,7 +1156,7 @@ describe("Jetton Minter", () => {
             from: deployer.address,
             to: deployerJettonWallet.address,
             aborted: true,
-            exitCode: DominumWallet.errors["Not a basechain address"],
+            exitCode: AllodiumWallet.errors["Not a basechain address"],
         })
     })
 

@@ -1,20 +1,20 @@
 // Экспорт Wallet (кошелёк)
-export * as Wallet from '../build/Dominum/tact_DominumWallet';
-import {ClaimTON, JettonTransfer, DominumWallet} from "../build/Dominum/tact_DominumWallet"
+export * as Wallet from '../build/Allodium/tact_AllodiumWallet';
+import {ClaimTON, JettonTransfer, AllodiumWallet} from "../build/Allodium/tact_AllodiumWallet"
 import {Address, Builder, Cell, ContractProvider, Sender, toNano} from "@ton/core"
-import {JettonBurn, ProvideWalletBalance} from "../build/Dominum/tact_DominumMinter"
+import {JettonBurn, ProvideWalletBalance} from "../build/Allodium/tact_AllodiumMinter"
 
-export class ExtendedDominumWallet extends DominumWallet {
+export class ExtendedAllodiummWallet extends AllodiumWallet {
     constructor(address: Address, init?: {code: Cell; data: Cell}) {
         super(address, init)
     }
 
     static async fromInit(balance: bigint, owner: Address, minter: Address) {
-        const base = await DominumWallet.fromInit(balance, owner, minter)
+        const base = await AllodiumWallet.fromInit(balance, owner, minter)
         if (base.init === undefined) {
-            throw new Error("DominumWallet init is not defined")
+            throw new Error("AllodiumWallet init is not defined")
         }
-        return new ExtendedDominumWallet(base.address, {code: base.init.code, data: base.init.data})
+        return new ExtendedAllodiumWallet(base.address, {code: base.init.code, data: base.init.data})
     }
 
     getJettonBalance = async (provider: ContractProvider): Promise<bigint> => {

@@ -1,7 +1,7 @@
 import "./messages";
 import "./constants";
 
-contract DominumWallet(
+contract AllodiumWallet(
     balance: Int as coins,
     owner: Address,
     minter: Address,
@@ -36,14 +36,14 @@ contract DominumWallet(
                 forwardTonAmount: msg.forwardTonAmount,
                 forwardPayload: msg.forwardPayload,
             }.toCell(),
-            init: initOf DominumWallet(0, msg.destination, self.minter),
+            init: initOf AllodiumWallet(0, msg.destination, self.minter),
         });
     }
 
     receive(msg: JettonTransferInternal) {
         self.balance += msg.amount;
 
-        let wallet: StateInit = initOf DominumWallet(0, msg.sender, self.minter);
+        let wallet: StateInit = initOf AllodiumWallet(0, msg.sender, self.minter);
         if (!wallet.hasSameBasechainAddress(sender())) {
             require(self.minter == sender(), "Incorrect sender");
         }

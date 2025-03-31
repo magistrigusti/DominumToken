@@ -4,7 +4,7 @@ import {ClaimTON, JettonTransfer, AllodiumWallet} from "../build/Allodium/tact_A
 import {Address, Builder, Cell, ContractProvider, Sender, toNano} from "@ton/core"
 import {JettonBurn, ProvideWalletBalance} from "../build/Allodium/tact_AllodiumMinter"
 
-export class ExtendedAllodiummWallet extends AllodiumWallet {
+export class ExtendedAllodiumWallet extends AllodiumWallet {
     constructor(address: Address, init?: {code: Cell; data: Cell}) {
         super(address, init)
     }

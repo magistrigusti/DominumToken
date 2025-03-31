@@ -154,6 +154,7 @@ contract AllodiumWallet(
             owner: self.owner,
             minter: self.minter,
             code: myCode(),
+            destimals: 4
         };
     }
 }

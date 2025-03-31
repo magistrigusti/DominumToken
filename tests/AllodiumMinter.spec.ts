@@ -985,7 +985,7 @@ describe("Jetton Minter", () => {
             from: jettonMinter.address,
             to: deployer.address,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.TakeWalletAddress, 32)
+                .storeUint(AllodiumMinter.opcodes.TakeWalletAddress, 32)
                 .storeUint(0, 64)
                 .storeUint(0, 2) // addr_none
                 .storeUint(0, 1)
@@ -1000,7 +1000,7 @@ describe("Jetton Minter", () => {
             from: jettonMinter.address,
             to: deployer.address,
             body: beginCell()
-                .storeUint(DominumMinter.opcodes.TakeWalletAddress, 32)
+                .storeUint(AllodiumMinter.opcodes.TakeWalletAddress, 32)
                 .storeUint(0, 64)
                 .storeUint(0, 2) // addr_none
                 .storeUint(1, 1)

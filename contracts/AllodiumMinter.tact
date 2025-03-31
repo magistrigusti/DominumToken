@@ -37,7 +37,7 @@ contract AllodiumMinter (totalSupply: Int as coins,
         let ownerWorkchain: Int = parseStdAddress(msg.ownerAddress.asSlice()).workchain;
 
         let targetJettonWallet: BasechainAddress = (ownerWorkchain == Workchain)
-            ? contractBasechainAddress(initOf DominumWallet(0, msg.ownerAddress, myAddress()))
+            ? contractBasechainAddress(initOf AllodiumWallet(0, msg.ownerAddress, myAddress()))
             : emptyBasechainAddress();
 
         message(MessageParameters {

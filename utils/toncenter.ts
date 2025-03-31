@@ -21,7 +21,7 @@ export type TonCenterResponse = z.infer<typeof tonCenterResponseSchema>
 export const callGetMetadataFromTonCenter = async (
     address: Address,
 ): Promise<TonCenterResponse> => {
-    const network = process.env.NETWORK ?? "testnet"
+    const network = process.env.NETWORK ?? "mainet"
     const url = new URL(`https://${network}.toncenter.com/api/v3/metadata`)
     url.searchParams.append("address", address.toString({urlSafe: true}))
 

@@ -4,7 +4,7 @@ import {beginCell, toNano, TonClient, WalletContractV4, internal, fromNano} from
 import {getHttpEndpoint} from "@orbs-network/ton-access"
 import {mnemonicToPrivateKey} from "@ton/crypto"
 import {buildJettonMinterFromEnv} from "../utils/jetton-helpers"
-import {storeMint} from "../build/Dominum/tact_DominumMinter"
+import {storeMint} from "../build/Allodium/tact_AllodiumMinter"
 
 import {printSeparator} from "../utils/print"
 import "dotenv/config"
@@ -41,7 +41,7 @@ const main = async () => {
     const jettonMinter = await buildJettonMinterFromEnv(deployerWalletContract.address)
     const deployAmount = toNano("0.15")
 
-    const supply = toNano(Number(process.env.JETTON_SUPPLY ?? 50_000_000)) // 50_000_000 jettons
+    const supply = toNano(Number(process.env.JETTON_SUPPLY ?? 1_000_000)) 
     const packed_msg = beginCell()
         .store(
             storeMint({

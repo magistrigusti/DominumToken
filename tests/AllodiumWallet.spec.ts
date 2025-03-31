@@ -142,7 +142,7 @@ describe("Jetton Minter Extended", () => {
             from: deployer.address,
             to: jettonMinter.address,
             aborted: true,
-            exitCode: DominumMinter.errors["Mint is closed"],
+            exitCode: AllodiumMinter.errors["Mint is closed"],
         })
     })
 

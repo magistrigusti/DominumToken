@@ -1,10 +1,10 @@
 // Экспорт Jetton (мастер-контракт)
-export * as AllodiumMinter from '../build/Dominum/tact_AllodiumMinter';
+export * as AllodiumMinter from '../build/Allodium/tact_AllodiumMinter';
 import ''
 import {
   ChangeOwner,
   ClaimTON,
-  DominumMinter,
+  AllodiumMinter,
   JettonUpdateContent,
   Mint,
   ProvideWalletAddress,
@@ -17,9 +17,9 @@ export class ExtendedAllodiumMinter extends AllodiumMinter {
   }
 
   static async fromInit(totalSupply: bigint, owner: Address, jettonContent: Cell) {
-      const base = await DominumMinter.fromInit(totalSupply, owner, jettonContent, true)
+      const base = await AllodiumMinter.fromInit(totalSupply, owner, jettonContent, true)
       if (base.init === undefined) {
-          throw new Error("DominumMinter init is not defined")
+          throw new Error("AllodiumMinter init is not defined")
       }
       return new ExtendedAllodiumMinter(base.address, {code: base.init.code, data: base.init.data})
   }

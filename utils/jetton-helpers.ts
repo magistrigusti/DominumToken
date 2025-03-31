@@ -1,6 +1,6 @@
 import {Sha256} from "@aws-crypto/sha256-js"
 import {Dictionary, beginCell, Cell, Address} from "@ton/core"
-import {DominumMinter} from "../build/Dominum/tact_DominumMinter"
+import {AllodiumMinter} from "../build/Allodium/tact_AllodiumMinter"
 import {TonClient} from "@ton/ton"
 
 const ONCHAIN_CONTENT_PREFIX = 0x00
@@ -95,7 +95,7 @@ export async function validateJettonParams(
     client: TonClient,
 ) {
     const {metadata, totalSupply, owner, jettonWalletCode} = expectedJettonParams
-    const jettonContract = client.open(new DominumMinter(jettonAddress))
+    const jettonContract = client.open(new AllodiumMinter(jettonAddress))
     const jettonData = await jettonContract.getGetJettonData()
     expect(jettonData.totalSupply).toBe(totalSupply)
     expect(jettonData.adminAddress.toRaw().toString("hex")).toBe(owner.toRaw().toString("hex"))
@@ -117,11 +117,11 @@ export async function buildJettonMinterFromEnv(deployerAddress: Address) {
         symbol: process.env.JETTON_SYMBOL ?? "ALOD",
         image:
             process.env.JETTON_IMAGE ??
-            "https://blush-tough-stoat-809.mypinata.cloud/ipfs/bafybeihwa7ra7n32jgnaglkbl2meik2vvsueretoy7jyhrafyjtjse6kxm",
+            "https://blush-tough-stoat-809.mypinata.cloud/ipfs/bafybeic7gzuuyuiwxw72otmyhd4vvc25kbiybxvkgtckayvtvzsaiqhaxy",
     }
     console.log(jettonParams)
     // Create content Cell
     const content = buildOnchainMetadata(jettonParams)
 
-    return await DominumMinter.fromInit(0n, deployerAddress, content, true)
+    return await AllodiumMinter.fromInit(0n, deployerAddress, content, true)
 }

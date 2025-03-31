@@ -4,6 +4,7 @@ struct JettonData {
     owner: Address;
     content: Cell;
     jettonWalletCode: Cell;
+    destimals: Int;
 }
 
 struct JettonWalletData {
@@ -11,6 +12,7 @@ struct JettonWalletData {
     owner: Address;
     minter: Address;
     code: Cell;
+    destimals: Int;
 }
 
 struct MaybeAddress {

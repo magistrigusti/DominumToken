@@ -1,5 +1,5 @@
 {
-    "name": "DominumToken",
+    "name": "AllodiumToken",
     "version": "0.0.1",
     "scripts": {
         "start": "blueprint run",
@@ -29,6 +29,8 @@
         "@aws-crypto/sha256-js": "^5.2.0",
         "@orbs-network/ton-access": "^2.3.3",
         "base64url": "^3.0.1",
-        "qs": "^6.14.0"
+        "dotenv": "^17.2.1",
+        "qs": "^6.14.0",
+        "ton-core": "^0.53.0"
     }
 }

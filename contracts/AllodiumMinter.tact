@@ -3,6 +3,7 @@ import "./messages";
 import "./constants";
 
 const Workchain: Int = 0;
+const MAX_SUPPLY: Int = 1_000_000_000;
 
 struct AllodiumMinterState {
   totalSupply: Int as coins;
@@ -18,6 +19,7 @@ contract AllodiumMinter (totalSupply: Int as coins,
     receive(msg: Mint) {
       require(sender() == self.owner, "Incorrect sender");
       require(self.mintable, "Mint is closed");
+      require(self.totalSupply + msg.mintMessage.amount <= MAX_SUPPLY, "Max supply exceeded");
       self.totalSupply += msg.mintMessage.amount;
 
       deploy(DeployParameters {

@@ -12,7 +12,7 @@ struct JettonWalletData {
     owner: Address;
     minter: Address;
     code: Cell;
-    destimals: Int;
+    decimals: Int;
 }
 
 struct MaybeAddress {

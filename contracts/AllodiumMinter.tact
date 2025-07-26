@@ -10,7 +10,7 @@ struct AllodiumMinterState {
   adminAddress: Address;
   jettonContent: Cell;
   jettonWalletCode: Cell;
-  destimals: Int;
+  decimals: Int;
 }
 
 contract AllodiumMinter (totalSupply: Int as coins, 
@@ -106,7 +106,7 @@ contract AllodiumMinter (totalSupply: Int as coins,
             adminAddress: self.owner,
             jettonContent: self.jettonContent,
             jettonWalletCode: codeOf AllodiumWallet,
-            destimals: 4
+            decimals: 4
         };
     }
 
